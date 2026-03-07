@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Innovación en Parques y Jardines con IA</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background: linear-gradient(90deg, #2e7d32 0%, #4caf50 100%);
+            color: white;
+            padding: 60px 0;
+            text-align: center;
+            border-radius: 0 0 20px 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1 {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .intro {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            margin: 40px 0;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        }
+        
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin: 40px 0;
+        }
+        
+        .feature-card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+        }
+        
+        .feature-icon {
+            font-size: 3rem;
+            color: #4caf50;
+            margin-bottom: 20px;
+        }
+        
+        .feature-card h3 {
+            color: #2e7d32;
+            margin-bottom: 15px;
+            font-size: 1.5rem;
+        }
+        
+        .ai-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 60px 40px;
+            border-radius: 15px;
+            margin: 40px 0;
+        }
+        
+        .ai-section h2 {
+            text-align: center;
+            margin-bottom: 40px;
+            font-size: 2.5rem;
+        }
+        
+        .ai-features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        
+        .ai-feature {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 40px 0;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        }
+        
+        .stat-number {
+            font-size: 3rem;
+            font-weight: bold;
+            color: #4caf50;
+            margin-bottom: 10px;
+        }
+        
+        footer {
+            background: #2e7d32;
+            color: white;
+            text-align: center;
+            padding: 40px 20px;
+            margin-top: 60px;
+            border-radius: 20px 20px 0 0;
+        }
+        
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .container {
+                padding: 10px;
+            }
+            
+            .intro, .feature-card {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>🌿 Innovación en Parques y Jardines con IA</h1>
+            <p class="subtitle">Transformando espacios verdes urbanos mediante inteligencia artificial, sensores IoT y tecnologías sostenibles</p>
+        </div>
+    </header>
+
+    <div class="container">
+        <section class="intro">
+            <h2>El Futuro de los Espacios Verdes Urbanos</h2>
+            <p>La inteligencia artificial está revolucionando la forma en que diseñamos, mantenemos y disfrutamos de nuestros parques y jardines. Desde sistemas de riego inteligente hasta monitoreo ambiental en tiempo real, la tecnología está creando espacios más sostenibles, eficientes y accesibles para todos.</p>
+        </section>
+
+        <section class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">💧</div>
+                <h3>Riego Inteligente</h3>
+                <p>Sistemas de IA que analizan datos meteorológicos, humedad del suelo y necesidades específicas de cada planta para optimizar el consumo de agua hasta en un 40%.</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">🌡️</div>
+                <h3>Monitoreo Ambiental</h3>
+                <p>Redes de sensores IoT que miden calidad del aire, temperatura, humedad y niveles de ruido, proporcionando datos en tiempo real para la toma de decisiones.</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">🤖</div>
+                <h3>Mantenimiento Autónomo</h3>
+                <p>Robots y drones equipados con visión por computadora para poda selectiva, detección de plagas y limpieza automatizada de áreas verdes.</p>
+            </div>
+        </section>
+
+        <section class="ai-section">
+            <h2>💡 Aplicaciones de Inteligencia Artificial</h2>
+            <div class="ai-features">
+                <div class="ai-feature">
+                    <h4>Diseño Generativo</h4>
+                    <p>Algoritmos que crean diseños de parques optimizados para biodiversidad, accesibilidad y uso comunitario.</p>
+                </div>
+                
+                <div class="ai-feature">
+                    <h4>Análisis Predictivo</h4>
+                    <p>Predicción de patrones de uso, necesidades de mantenimiento y crecimiento vegetal mediante machine learning.</p>
+                </div>
+                
+                <div class="ai-feature">
+                    <h4>Asistentes Virtuales</h4>
+                    <p>Chatbots y aplicaciones móviles que guían a visitantes, identifican plantas y ofrecen rutas personalizadas.</p>
+                </div>
+                
+                <div class="ai-feature">
+                    <h4>Visón por Computadora</h4>
+                    <p>Detección automática de enfermedades en plantas, conteo de visitantes y monitoreo de fauna urbana.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="stats">
+            <div class="stat-card">
+                <div class="stat-number">40%</div>
+                <p>Reducción en consumo de agua</p>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-number">60%</div>
+                <p>Menos uso de pesticidas</p>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-number">85%</div>
+                <p>Mayor satisfacción de usuarios</p>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-number">30%</div>
+                <p>Aumento en biodiversidad</p>
+            </div>
+        </section>
+
+        <section class="intro">
+            <h2>Beneficios para la Comunidad</h2>
+            <p>Los parques inteligentes no solo son más eficientes, sino que también crean espacios más inclusivos y educativos. Aplicaciones móviles con realidad aumentada permiten tours botánicos interactivos, mientras que sistemas de iluminación adaptativa mejoran la seguridad durante la noche. La integración de tecnologías accesibles garantiza que todos puedan disfrutar de estos espacios, independientemente de sus capacidades.</p>
+        </section>
+    </div>
+
+    <footer>
+        <div class="container">
+            <h3>🌳 El Futuro es Verde e Inteligente</h3>
+            <p>La combinación de naturaleza y tecnología está creando espacios urbanos más saludables, sostenibles y disfrutables para las generaciones presentes y futuras.</p>
+            <p style="margin-top: 20px; opacity: 0.8;">© 2026 Innovación en Parques y Jardines con IA | Todos los derechos reservados</p>
+        </div>
+    </footer>
+
+    <script>
+        // Efecto de animación para las tarjetas al hacer scroll
+        document.addEventListener('DOMContentLoaded', function() {
+            const featureCards = document.querySelectorAll('.feature-card');
+            
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.opacity = '1';
+                        entry.target.style.transform = 'translateY(0)';
+                    }
+                });
+            }, { threshold: 0.1 });
+            
+            featureCards.forEach(card => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(20px)';
+                card.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+                observer.observe(card);
+            });
+            
+            // Actualizar año en el footer
+            document.querySelector('footer p:last-child').textContent = 
+                `© ${new Date().getFullYear()} Innovación en Parques y Jardines con IA | Todos los derechos reservados`;
+        });
+    </script>
+</body>
+</html>
