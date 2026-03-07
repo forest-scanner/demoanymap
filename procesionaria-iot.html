@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Estudio de Procesionaria del Pino con IoT y LoRaWAN</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background: linear-gradient(90deg, #2c3e50 0%, #4a6491 100%);
+            color: white;
+            padding: 40px 0;
+            text-align: center;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            font-size: 2.8rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .section {
+            background: white;
+            padding: 30px;
+            margin-bottom: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+        }
+        
+        h2 {
+            color: #2c3e50;
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+            font-size: 1.8rem;
+        }
+        
+        h3 {
+            color: #2980b9;
+            margin: 20px 0 10px 0;
+        }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #3498db;
+            transition: transform 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .sensor-card {
+            border-left-color: #2ecc71;
+        }
+        
+        .iot-card {
+            border-left-color: #9b59b6;
+        }
+        
+        .data-card {
+            border-left-color: #e74c3c;
+        }
+        
+        .architecture {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+            margin: 30px 0;
+        }
+        
+        .arch-step {
+            background: #ecf0f1;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            flex: 1;
+            min-width: 200px;
+            position: relative;
+        }
+        
+        .arch-step:not(:last-child)::after {
+            content: "→";
+            position: absolute;
+            right: -15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #3498db;
+            font-size: 1.5rem;
+        }
+        
+        .tech-stack {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .tech-item {
+            background: #3498db;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+        
+        .benefits {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+        }
+        
+        .benefit {
+            background: #e8f4fc;
+            padding: 15px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .benefit-icon {
+            font-size: 1.5rem;
+            color: #3498db;
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            padding: 20px;
+            color: #7f8c8d;
+            border-top: 1px solid #ddd;
+        }
+        
+        @media (max-width: 768px) {
+            .arch-step:not(:last-child)::after {
+                content: "↓";
+                right: 50%;
+                top: auto;
+                bottom: -20px;
+                transform: translateX(50%);
+            }
+            
+            .architecture {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Estudio de Procesionaria del Pino con IoT y LoRaWAN</h1>
+            <p class="subtitle">Sistema de monitorización inteligente para la detección temprana y control de la plaga de procesionaria en zonas verdes urbanas</p>
+        </header>
+        
+        <section class="section">
+            <h2>📊 Problema a Resolver</h2>
+            <p>La procesionaria del pino (Thaumetopoea pityocampa) es una plaga forestal que afecta gravemente a:</p>
+            <ul style="margin-left: 20px; margin-top: 10px;">
+                <li>Salud pública (alergias, urticarias)</li>
+                <li>Ecosistemas urbanos (deforestación, pérdida de biodiversidad)</li>
+                <li>Economía local (costes de control, turismo)</li>
+                <li>Seguridad en parques y zonas recreativas</li>
+            </ul>
+        </section>
+        
+        <section class="section">
+            <h2>🚀 Solución Propuesta</h2>
+            <p>Sistema de monitorización distribuida basado en sensores IoT conectados mediante red LoRaWAN para:</p>
+            
+            <div class="grid">
+                <div class="card sensor-card">
+                    <h3>🔍 Detección Temprana</h3>
+                    <p>Sensores especializados detectan actividad de orugas antes de que sean visibles a simple vista.</p>
+                </div>
+                
+                <div class="card iot-card">
+                    <h3>📡 Comunicación de Largo Alcance</h3>
+                    <p>Red LoRaWAN permite cobertura en grandes áreas con mínimo consumo energético.</p>
+                </div>
+                
+                <div class="card data-card">
+                    <h3>📊 Análisis Predictivo</h3>
+                    <p>Algoritmos de IA analizan datos para predecir brotes y optimizar tratamientos.</p>
+                </div>
+            </div>
+        </section>
+        
+        <section class="section">
+            <h2>🏗️ Arquitectura del Sistema</h2>
+            
+            <div class="architecture">
+                <div class="arch-step">
+                    <h3>1. Sensores IoT</h3>
+                    <p>Cámaras térmicas, sensores de vibración y ambientales instalados en pinos</p>
+                </div>
+                
+                <div class="arch-step">
+                    <h3>2. Gateway LoRaWAN</h3>
+                    <p>Recolecta datos de múltiples sensores y los envía a la nube</p>
+                </div>
+                
+                <div class="arch-step">
+                    <h3>3. Plataforma Cloud</h3>
+                    <p>Procesamiento, almacenamiento y análisis de datos</p>
+                </div>
+                
+                <div class="arch-step">
+                    <h3>4. Dashboard Web</h3>
+                    <p>Visualización en tiempo real y alertas para gestores municipales</p>
+                </div>
+            </div>
+        </section>
+        
+        <section class="section">
+            <h2>🔧 Tecnologías Utilizadas</h2>
+            
+            <div class="tech-stack">
+                <span class="tech-item">LoRaWAN</span>
+                <span class="tech-item">ESP32 / Arduino</span>
+                <span class="tech-item">Sensores IoT</span>
+                <span class="tech-item">Python / TensorFlow</span>
+                <span class="tech-item">Node-RED</span>
+                <span class="tech-item">InfluxDB</span>
+                <span class="tech-item">Grafana</span>
+                <span class="tech-item">MQTT</span>
+                <span class="tech-item">Docker</span>
+                <span class="tech-item">GitHub Actions</span>
+            </div>
+        </section>
+        
+        <section class="section">
+            <h2>✅ Beneficios del Sistema</h2>
+            
+            <div class="benefits">
+                <div class="benefit">
+                    <span class="benefit-icon">💰</span>
+                    <div>
+                        <strong>Reducción de Costes</strong>
+                        <p>Hasta 40% en tratamientos mediante intervención precisa</p>
+                    </div>
+                </div>
+                
+                <div class="benefit">
+                    <span class="benefit-icon">🌳</span>
+                    <div>
+                        <strong>Protección Ambiental</strong>
+                        <p>Minimización de pesticidas, solo donde sea necesario</p>
+                    </div>
+                </div>
+                
+                <div class="benefit">
+                    <span class="benefit-icon">👥</span>
+                    <div>
+                        <strong>Seguridad Ciudadana</strong>
+                        <p>Alertas tempranas para evitar zonas afectadas</p>
+                    </div>
+                </div>
+                
+                <div class="benefit">
+                    <span class="benefit-icon">📈</span>
+                    <div>
+                        <strong>Datos para Investigación</strong>
+                        <p>Base de datos para estudios ecológicos a largo plazo</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <section class="section">
+            <h2>📅 Fases de Implementación</h2>
+            <ol style="margin-left: 20px;">
+                <li><strong>Fase 1 (3 meses):</strong> Prototipo en zona piloto (10 sensores)</li>
+                <li><strong>Fase 2 (6 meses):</strong> Escalado a parque municipal completo</li>
+                <li><strong>Fase 3 (12 meses):</strong> Implementación en red de parques urbanos</li>
+                <li><strong>Fase 4 (18 meses):</strong> Plataforma abierta para otras ciudades</li>
+            </ol>
+        </section>
+        
+        <footer>
+            <p>Proyecto desarrollado por Ruben | Sistema IoT para Gestión Inteligente de Zonas Verdes</p>
+            <p>Contacto: ruben@example.com | GitHub: /procesionaria-iot</p>
+            <p>© 2026 - Todos los derechos reservados</p>
+        </footer>
+    </div>
+</body>
+</html>
