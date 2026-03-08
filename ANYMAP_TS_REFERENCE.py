@@ -1,48 +1,78 @@
 #!/usr/bin/env python3
 """
-[REFERENCIA CRÍTICA] ANYMAP-TS vs FOLIUM
-Este archivo muestra cómo usar correctamente AnyMap TS. 
-PROHIBIDO USAR FOLIUM EN ESTE PROYECTO.
+[REFERENCIA CRÍTICA] AnyMap-TS — Código correcto de la librería opengeos/anymap-ts
+
+⚠️ PROHIBIDO:
+  - class MiMapa(anywidget.AnyWidget)  ← MAL, esto es una plantilla vacía
+  - import anywidget                   ← MAL, la librería YA lo hace internamente
+
+✅ CORRECTO:
+  - from anymap_ts import Map          ← La librería provee clases listas
+  - m.to_html("visor.html")           ← Exporta HTML standalone
 """
 
-import anymap_ts as anymap
-import pandas as pd
-import json
+# ============================================================
+# EJEMPLO 1: MapLibre (motor por defecto)
+# ============================================================
+from anymap_ts import Map
 
-# 1. Configuración del Mapa (MapLibre GL JS)
-m = anymap.Map(
-    center=[-3.6867, 40.4740], # Madrid (Parque Norte)
-    zoom=16,
-    style="https://basemaps.cartocdn.com/gl/voyager-gl-style/style.json"
-)
+m = Map(center=[-3.6867, 40.4740], zoom=16)
+m.add_basemap("OpenStreetMap")
+m.add_draw_control()
 
-# 2. Añadir datos (GeoJSON)
+# Añadir datos vectoriales (GeoJSON)
 puntos_interes = {
     "type": "FeatureCollection",
     "features": [
         {
             "type": "Feature",
-            "properties": {"name": "Entrada Principal", "type": "park"},
+            "properties": {"name": "Entrada Principal", "tipo": "acceso"},
             "geometry": {"type": "Point", "coordinates": [-3.6870, 40.4745]}
         },
         {
             "type": "Feature",
-            "properties": {"name": "Lago", "type": "water"},
+            "properties": {"name": "Lago", "tipo": "agua"},
             "geometry": {"type": "Point", "coordinates": [-3.6855, 40.4735]}
         }
     ]
 }
 
-# En AnyMap TS, usamos add_geojson para capas vectoriales
-m.add_geojson(
-    data=puntos_interes,
-    layer_id="parque_puntos",
-    paint={
-        "circle-radius": 8,
-        "circle-color": "#007cbf"
-    }
-)
+m.add_vector(puntos_interes, name="parque_puntos")
+m.fly_to(-3.6867, 40.4740, zoom=17)
+m.to_html("demoanymap/visor_parque_norte.html", title="Parque Norte - Madrid")
 
-# 3. Mostrar el mapa (Solo funciona en entornos AnyWidget/Jupyter/Voila)
-# m # En un notebook
-print("Mapa AnyMap TS configurado correctamente con 2 capas.")
+# ============================================================
+# EJEMPLO 2: DeckGL (capas de alto rendimiento)
+# ============================================================
+from anymap_ts import DeckGLMap
+
+deck = DeckGLMap(center=[-3.70, 40.42], zoom=12)
+deck.add_basemap("CartoDB.DarkMatter")
+
+# Capa de hexágonos para densidad
+datos = [{"coordinates": [-3.70, 40.42], "value": 100}]
+deck.add_hexagon_layer(data=datos, radius=500, extruded=True)
+deck.to_html("demoanymap/visor_deckgl.html")
+
+# ============================================================
+# EJEMPLO 3: Cesium (globo 3D)
+# ============================================================
+from anymap_ts import CesiumMap
+
+cesium = CesiumMap(center=[-3.70, 40.42], zoom=10)
+cesium.add_basemap("OpenStreetMap")
+cesium.set_terrain()
+cesium.fly_to(-3.6867, 40.4740, height=5000, heading=45, pitch=-30)
+cesium.to_html("demoanymap/visor_cesium.html")
+
+# ============================================================
+# EJEMPLO 4: Con GeoPandas (datos vectoriales reales)
+# ============================================================
+# import geopandas as gpd
+# gdf = gpd.read_file("data/parcelas.geojson")
+# m = Map(center=[-3.70, 40.42], zoom=14)
+# m.add_basemap("OpenStreetMap")
+# m.add_vector(gdf, name="parcelas")
+# m.to_html("demoanymap/visor_parcelas.html")
+
+print("✅ Referencia AnyMap-TS correcta. Todos los ejemplos usan 'from anymap_ts import ...'")
