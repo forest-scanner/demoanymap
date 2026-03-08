@@ -1,196 +1,364 @@
+#!/usr/bin/env python3
 """
-Anymap TS del Parque Norte de Madrid
-Visualización de datos del parque usando técnicas de series temporales
+Análisis de series temporales y visualización geoespacial del Parque Norte de Madrid.
+Implementación de Anymap TS para análisis de datos de visitantes y actividades.
 """
 
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-from datetime import datetime, timedelta
 import folium
-from folium.plugins import HeatMap
+from datetime import datetime, timedelta
+import seaborn as sns
+from typing import Dict, List, Tuple
 import json
 
+
 class ParqueNorteMadrid:
-    """Clase principal para el análisis del Parque Norte de Madrid"""
+    """Clase principal para el análisis del Parque Norte de Madrid."""
     
     def __init__(self):
+        """Inicializa el análisis del Parque Norte de Madrid."""
         self.nombre = "Parque Norte de Madrid"
-        self.coordenadas = [40.4740, -3.6147]  # Coordenadas aproximadas
-        self.datos_simulados = None
+        self.coordenadas = (40.4740, -3.6867)  # Coordenadas aproximadas
+        self.puntos_interes = {
+            "Entrada Principal": (40.4745, -3.6870),
+            "Lago": (40.4735, -3.6855),
+            "Zona Infantil": (40.4748, -3.6860),
+            "Área Deportiva": (40.4730, -3.6880),
+            "Jardín Botánico": (40.4750, -3.6845),
+        }
+        self.actividades = ["Caminar", "Correr", "Ciclismo", "Picnic", "Juegos", "Observación"]
         
-    def generar_datos_simulados(self, dias=365):
-        """Genera datos simulados de visitantes y actividades"""
-        fechas = pd.date_range(end=datetime.now(), periods=dias, freq='D')
+    def generar_datos_simulados(self, dias: int = 365) -> pd.DataFrame:
+        """
+        Genera datos simulados de visitantes del parque.
         
-        datos = {
+        Args:
+            dias: Número de días a simular
+            
+        Returns:
+            DataFrame con datos simulados
+        """
+        fecha_inicio = datetime(2024, 1, 1)
+        fechas = [fecha_inicio + timedelta(days=i) for i in range(dias)]
+        
+        # Generar datos con patrones estacionales
+        np.random.seed(42)  # Para reproducibilidad
+        
+        # Visitantes con patrones estacionales
+        base_visitantes = 500
+        estacionalidad = 300 * np.sin(2 * np.pi * np.arange(dias) / 365)
+        fin_de_semana = np.array([100 if (fecha.weekday() >= 5) else 0 for fecha in fechas])
+        ruido = np.random.normal(0, 50, dias)
+        visitantes = base_visitantes + estacionalidad + fin_de_semana + ruido
+        visitantes = np.maximum(visitantes, 100)  # Mínimo 100 visitantes
+        
+        # Temperatura con estacionalidad
+        temperatura_base = 15
+        temp_estacional = 10 * np.sin(2 * np.pi * np.arange(dias) / 365 - np.pi/2)
+        temp_ruido = np.random.normal(0, 3, dias)
+        temperatura = temperatura_base + temp_estacional + temp_ruido
+        
+        # Actividades (distribución probabilística)
+        actividades_probs = [0.3, 0.2, 0.15, 0.15, 0.1, 0.1]  # Probabilidades
+        actividades = np.random.choice(self.actividades, dias, p=actividades_probs)
+        
+        # Crear DataFrame
+        datos = pd.DataFrame({
             'fecha': fechas,
-            'visitantes': np.random.poisson(500, dias) + 
-                         np.sin(np.arange(dias) * 2 * np.pi / 365) * 200 +
-                         np.where(fechas.weekday < 5, 100, 300),  # Más visitantes los fines de semana
-            'temperatura': 10 + 15 * np.sin(np.arange(dias) * 2 * np.pi / 365) + 
-                          np.random.normal(0, 5, dias),
-            'actividades': np.random.choice(['Caminata', 'Ciclismo', 'Picnic', 'Deporte', 'Observación'], 
-                                           dias, p=[0.3, 0.25, 0.2, 0.15, 0.1])
+            'visitantes': visitantes.astype(int),
+            'temperatura': temperatura.round(1),
+            'actividad_principal': actividades,
+            'dia_semana': [fecha.strftime('%A') for fecha in fechas],
+            'mes': [fecha.month for fecha in fechas],
+            'es_fin_semana': [fecha.weekday() >= 5 for fecha in fechas]
+        })
+        
+        return datos
+    
+    def analizar_series_temporales(self, datos: pd.DataFrame = None) -> Dict:
+        """
+        Realiza análisis de series temporales sobre los datos del parque.
+        
+        Args:
+            datos: DataFrame con datos (si es None, genera datos nuevos)
+            
+        Returns:
+            Diccionario con análisis estadístico
+        """
+        if datos is None:
+            datos = self.generar_datos_simulados()
+        
+        # Análisis básico
+        analisis = {
+            'total_visitantes': int(datos['visitantes'].sum()),
+            'promedio_diario': float(datos['visitantes'].mean()),
+            'max_visitantes': int(datos['visitantes'].max()),
+            'min_visitantes': int(datos['visitantes'].min()),
+            'temperatura_promedio': float(datos['temperatura'].mean()),
         }
         
-        self.datos_simulados = pd.DataFrame(datos)
-        return self.datos_simulados
-    
-    def crear_mapa_interactivo(self):
-        """Crea un mapa interactivo del Parque Norte"""
-        mapa = folium.Map(location=self.coordenadas, zoom_start=15)
+        # Análisis por mes
+        datos_mensual = datos.groupby('mes').agg({
+            'visitantes': ['sum', 'mean', 'std'],
+            'temperatura': 'mean'
+        }).round(2)
         
-        # Añadir marcador del parque
+        # Análisis por día de semana
+        datos_semana = datos.groupby('dia_semana').agg({
+            'visitantes': 'mean',
+            'temperatura': 'mean'
+        }).round(2)
+        
+        # Correlación entre temperatura y visitantes
+        correlacion = datos['temperatura'].corr(datos['visitantes'])
+        
+        analisis.update({
+            'datos_mensual': datos_mensual,
+            'datos_semana': datos_semana,
+            'correlacion_temperatura_visitantes': float(correlacion),
+            'actividad_mas_popular': datos['actividad_principal'].mode()[0],
+            'distribucion_actividades': datos['actividad_principal'].value_counts().to_dict()
+        })
+        
+        return analisis
+    
+    def generar_visualizaciones(self, datos: pd.DataFrame = None) -> plt.Figure:
+        """
+        Genera visualizaciones de los datos del parque.
+        
+        Args:
+            datos: DataFrame con datos (si es None, genera datos nuevos)
+            
+        Returns:
+            Figura de matplotlib con múltiples gráficos
+        """
+        if datos is None:
+            datos = self.generar_datos_simulados(180)  # 6 meses para visualización
+        
+        # Crear figura con múltiples subplots
+        fig, axes = plt.subplots(2, 3, figsize=(15, 10))
+        fig.suptitle(f'Análisis del {self.nombre}', fontsize=16, fontweight='bold')
+        
+        # 1. Serie temporal de visitantes
+        axes[0, 0].plot(datos['fecha'], datos['visitantes'], color='green', linewidth=2)
+        axes[0, 0].set_title('Visitantes Diarios', fontweight='bold')
+        axes[0, 0].set_xlabel('Fecha')
+        axes[0, 0].set_ylabel('Número de Visitantes')
+        axes[0, 0].grid(True, alpha=0.3)
+        axes[0, 0].tick_params(axis='x', rotation=45)
+        
+        # 2. Serie temporal de temperatura
+        axes[0, 1].plot(datos['fecha'], datos['temperatura'], color='red', linewidth=2)
+        axes[0, 1].set_title('Temperatura Diaria', fontweight='bold')
+        axes[0, 1].set_xlabel('Fecha')
+        axes[0, 1].set_ylabel('Temperatura (°C)')
+        axes[0, 1].grid(True, alpha=0.3)
+        axes[0, 1].tick_params(axis='x', rotation=45)
+        
+        # 3. Distribución de actividades
+        actividad_counts = datos['actividad_principal'].value_counts()
+        axes[0, 2].bar(actividad_counts.index, actividad_counts.values, color='skyblue')
+        axes[0, 2].set_title('Actividades Principales', fontweight='bold')
+        axes[0, 2].set_xlabel('Actividad')
+        axes[0, 2].set_ylabel('Frecuencia')
+        axes[0, 2].tick_params(axis='x', rotation=45)
+        
+        # 4. Visitantes por día de la semana
+        dias_orden = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+        visitas_semana = datos.groupby('dia_semana')['visitantes'].mean().reindex(dias_orden)
+        axes[1, 0].bar(visitas_semana.index, visitas_semana.values, color='orange')
+        axes[1, 0].set_title('Visitantes Promedio por Día', fontweight='bold')
+        axes[1, 0].set_xlabel('Día de la Semana')
+        axes[1, 0].set_ylabel('Visitantes Promedio')
+        axes[1, 0].tick_params(axis='x', rotation=45)
+        
+        # 5. Histograma de visitantes
+        axes[1, 1].hist(datos['visitantes'], bins=30, color='purple', alpha=0.7, edgecolor='black')
+        axes[1, 1].set_title('Distribución de Visitantes', fontweight='bold')
+        axes[1, 1].set_xlabel('Número de Visitantes')
+        axes[1, 1].set_ylabel('Frecuencia')
+        axes[1, 1].grid(True, alpha=0.3)
+        
+        # 6. Scatter plot: temperatura vs visitantes
+        axes[1, 2].scatter(datos['temperatura'], datos['visitantes'], 
+                          alpha=0.6, color='teal', s=20)
+        axes[1, 2].set_title('Temperatura vs Visitantes', fontweight='bold')
+        axes[1, 2].set_xlabel('Temperatura (°C)')
+        axes[1, 2].set_ylabel('Visitantes')
+        axes[1, 2].grid(True, alpha=0.3)
+        
+        # Ajustar layout
+        plt.tight_layout()
+        
+        return fig
+    
+    def crear_mapa_interactivo(self) -> folium.Map:
+        """
+        Crea un mapa interactivo del Parque Norte de Madrid.
+        
+        Returns:
+            Mapa de folium con puntos de interés
+        """
+        # Crear mapa centrado en el parque
+        mapa = folium.Map(
+            location=self.coordenadas,
+            zoom_start=16,
+            tiles='OpenStreetMap',
+            control_scale=True
+        )
+        
+        # Añadir marcador principal del parque
         folium.Marker(
-            self.coordenadas,
+            location=self.coordenadas,
             popup=f'<b>{self.nombre}</b><br>Área recreativa principal',
-            tooltip='Haz clic para más información',
-            icon=folium.Icon(color='green', icon='tree-conifer')
+            tooltip=self.nombre,
+            icon=folium.Icon(color='green', icon='tree', prefix='fa')
         ).add_to(mapa)
         
-        # Añadir puntos de interés alrededor del parque
-        puntos_interes = [
-            [[40.4755, -3.6160], "Entrada Principal"],
-            [[40.4730, -3.6130], "Área de Picnic"],
-            [[40.4720, -3.6155], "Zona Deportiva"],
-            [[40.4760, -3.6120], "Mirador"]
-        ]
-        
-        for coord, nombre in puntos_interes:
+        # Añadir puntos de interés
+        for nombre, coords in self.puntos_interes.items():
             folium.Marker(
-                coord,
-                popup=f'<b>{nombre}</b>',
+                location=coords,
+                popup=f'<b>{nombre}</b><br>Punto de interés',
+                tooltip=nombre,
                 icon=folium.Icon(color='blue', icon='info-sign')
             ).add_to(mapa)
         
-        # Añadir polígono del área del parque (aproximado)
-        area_parque = [
-            [40.4750, -3.6170],
-            [40.4765, -3.6125],
-            [40.4715, -3.6115],
-            [40.4705, -3.6165],
-            [40.4750, -3.6170]
-        ]
-        
-        folium.Polygon(
-            area_parque,
+        # Añadir círculo para representar el área del parque
+        folium.Circle(
+            location=self.coordenadas,
+            radius=200,  # Aproximadamente 200 metros
             color='green',
             fill=True,
             fill_color='green',
             fill_opacity=0.2,
-            popup='Área aproximada del Parque Norte'
+            popup='Área aproximada del parque'
         ).add_to(mapa)
+        
+        # Añadir control de capas
+        folium.LayerControl().add_to(mapa)
         
         return mapa
     
-    def analizar_series_temporales(self):
-        """Realiza análisis de series temporales de los datos"""
-        if self.datos_simulados is None:
-            self.generar_datos_simulados()
+    def generar_reporte(self, datos: pd.DataFrame = None) -> str:
+        """
+        Genera un reporte de análisis en formato texto.
         
-        datos = self.datos_simulados.copy()
-        datos.set_index('fecha', inplace=True)
+        Args:
+            datos: DataFrame con datos (si es None, genera datos nuevos)
+            
+        Returns:
+            String con el reporte de análisis
+        """
+        if datos is None:
+            datos = self.generar_datos_simulados()
         
-        # Análisis mensual
-        datos_mensual = datos.resample('M').agg({
-            'visitantes': 'sum',
-            'temperatura': 'mean'
-        })
+        analisis = self.analizar_series_temporales(datos)
         
-        return datos_mensual
-    
-    def generar_visualizaciones(self):
-        """Genera visualizaciones de los datos"""
-        if self.datos_simulados is None:
-            self.generar_datos_simulados()
+        reporte = f"""
+        {'='*60}
+        REPORTE DE ANÁLISIS - {self.nombre}
+        {'='*60}
         
-        fig, axes = plt.subplots(2, 2, figsize=(15, 10))
+        RESUMEN ESTADÍSTICO:
+        {'-'*40}
+        • Total de visitantes: {analisis['total_visitantes']:,}
+        • Promedio diario: {analisis['promedio_diario']:.0f} visitantes
+        • Máximo diario: {analisis['max_visitantes']} visitantes
+        • Mínimo diario: {analisis['min_visitantes']} visitantes
+        • Temperatura promedio: {analisis['temperatura_promedio']:.1f}°C
         
-        # Gráfico 1: Visitantes diarios
-        axes[0, 0].plot(self.datos_simulados['fecha'], self.datos_simulados['visitantes'])
-        axes[0, 0].set_title('Visitantes Diarios - Parque Norte de Madrid')
-        axes[0, 0].set_xlabel('Fecha')
-        axes[0, 0].set_ylabel('Número de Visitantes')
-        axes[0, 0].grid(True, alpha=0.3)
+        ANÁLISIS DE CORRELACIÓN:
+        {'-'*40}
+        • Correlación temperatura-visitantes: {analisis['correlacion_temperatura_visitantes']:.3f}
         
-        # Gráfico 2: Temperatura media
-        axes[0, 1].plot(self.datos_simulados['fecha'], self.datos_simulados['temperatura'], color='red')
-        axes[0, 1].set_title('Temperatura Media Diaria')
-        axes[0, 1].set_xlabel('Fecha')
-        axes[0, 1].set_ylabel('Temperatura (°C)')
-        axes[0, 1].grid(True, alpha=0.3)
+        ACTIVIDADES MÁS POPULARES:
+        {'-'*40}
+        • Actividad más frecuente: {analisis['actividad_mas_popular']}
         
-        # Gráfico 3: Distribución de actividades
-        actividades_counts = self.datos_simulados['actividades'].value_counts()
-        axes[1, 0].bar(actividades_counts.index, actividades_counts.values)
-        axes[1, 0].set_title('Distribución de Actividades')
-        axes[1, 0].set_xlabel('Actividad')
-        axes[1, 0].set_ylabel('Frecuencia')
-        axes[1, 0].tick_params(axis='x', rotation=45)
+        DISTRIBUCIÓN DE ACTIVIDADES:
+        {'-'*40}
+        """
         
-        # Gráfico 4: Visitantes por día de la semana
-        self.datos_simulados['dia_semana'] = self.datos_simulados['fecha'].dt.day_name()
-        visitantes_por_dia = self.datos_simulados.groupby('dia_semana')['visitantes'].mean()
-        dias_orden = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
-        visitantes_por_dia = visitantes_por_dia.reindex(dias_orden)
-        axes[1, 1].bar(visitantes_por_dia.index, visitantes_por_dia.values)
-        axes[1, 1].set_title('Visitantes Promedio por Día de la Semana')
-        axes[1, 1].set_xlabel('Día de la Semana')
-        axes[1, 1].set_ylabel('Visitantes Promedio')
-        axes[1, 1].tick_params(axis='x', rotation=45)
+        for actividad, frecuencia in analisis['distribucion_actividades'].items():
+            porcentaje = (frecuencia / len(datos)) * 100
+            reporte += f"  • {actividad}: {frecuencia} días ({porcentaje:.1f}%)\n"
         
-        plt.tight_layout()
-        return fig
+        reporte += f"""
+        ANÁLISIS POR DÍA DE LA SEMANA:
+        {'-'*40}
+        """
+        
+        for dia, datos_dia in analisis['datos_semana'].iterrows():
+            reporte += f"  • {dia}: {datos_dia['visitantes']:.0f} visitantes, {datos_dia['temperatura']:.1f}°C\n"
+        
+        reporte += f"""
+        {'='*60}
+        Fecha de generación: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
+        {'='*60}
+        """
+        
+        return reporte
+
 
 def main():
-    """Función principal"""
-    print("=== Anymap TS - Parque Norte de Madrid ===\n")
+    """Función principal para ejecutar el análisis completo."""
+    print("Iniciando análisis del Parque Norte de Madrid...")
     
-    # Crear instancia del análisis
+    # Crear instancia
     parque = ParqueNorteMadrid()
+    print(f"Analizando: {parque.nombre}")
     
     # Generar datos
     print("Generando datos simulados...")
-    datos = parque.generar_datos_simulados()
-    print(f"Datos generados: {len(datos)} registros")
-    print(f"Período: {datos['fecha'].min().date()} a {datos['fecha'].max().date()}")
+    datos = parque.generar_datos_simulados(dias=365)
+    print(f"Datos generados: {len(datos)} días")
     
-    # Análisis de series temporales
-    print("\nRealizando análisis de series temporales...")
-    analisis_mensual = parque.analizar_series_temporales()
-    print("\nResumen mensual:")
-    print(analisis_mensual.tail())
+    # Realizar análisis
+    print("Realizando análisis de series temporales...")
+    analisis = parque.analizar_series_temporales(datos)
+    print(f"Total de visitantes: {analisis['total_visitantes']:,}")
     
-    # Crear visualizaciones
-    print("\nGenerando visualizaciones...")
-    fig = parque.generar_visualizaciones()
+    # Generar visualizaciones
+    print("Generando visualizaciones...")
+    fig = parque.generar_visualizaciones(datos)
     fig.savefig('visualizaciones_parque_norte.png', dpi=300, bbox_inches='tight')
     print("Visualizaciones guardadas en 'visualizaciones_parque_norte.png'")
     
     # Crear mapa interactivo
-    print("\nCreando mapa interactivo...")
+    print("Creando mapa interactivo...")
     mapa = parque.crear_mapa_interactivo()
     mapa.save('mapa_parque_norte.html')
-    print("Mapa interactivo guardado en 'mapa_parque_norte.html'")
+    print("Mapa guardado en 'mapa_parque_norte.html'")
     
     # Generar reporte
-    with open('reporte_parque_norte.txt', 'w') as f:
-        f.write(f"REPORTE: {parque.nombre}\n")
-        f.write("=" * 50 + "\n\n")
-        f.write(f"Total de registros: {len(datos)}\n")
-        f.write(f"Visitantes totales simulados: {datos['visitantes'].sum():,.0f}\n")
-        f.write(f"Temperatura promedio: {datos['temperatura'].mean():.1f}°C\n")
-        f.write(f"Actividad más popular: {datos['actividades'].mode()[0]}\n\n")
-        
-        f.write("Resumen mensual:\n")
-        f.write(str(analisis_mensual.tail()))
+    print("Generando reporte de análisis...")
+    reporte = parque.generar_reporte(datos)
     
-    print("\n=== Análisis completado ===")
-    print("Archivos generados:")
+    with open('reporte_parque_norte.txt', 'w', encoding='utf-8') as f:
+        f.write(reporte)
+    
+    print("Reporte guardado en 'reporte_parque_norte.txt'")
+    
+    # Mostrar resumen
+    print("\n" + "="*60)
+    print("ANÁLISIS COMPLETADO EXITOSAMENTE")
+    print("="*60)
+    print("\nArchivos generados:")
     print("1. visualizaciones_parque_norte.png - Gráficos de análisis")
     print("2. mapa_parque_norte.html - Mapa interactivo")
-    print("3. reporte_parque_norte.txt - Reporte de análisis")
+    print("3. reporte_parque_norte.txt - Reporte detallado")
+    
+    # Mostrar parte del reporte en consola
+    print("\n" + "="*60)
+    print("RESUMEN DEL REPORTE:")
+    print("="*60)
+    lines = reporte.split('\n')[:25]  # Mostrar primeras 25 líneas
+    print('\n'.join(lines))
+    print("... (ver archivo completo para más detalles)")
+
 
 if __name__ == "__main__":
     main()
