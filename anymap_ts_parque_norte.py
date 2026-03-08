@@ -1,12 +1,18 @@
 # Código en Python básico de AnyMap TS del Parque Norte de Madrid
 
-class ParqueNorte:
-    def __init__(self, nombre, ubicacion):
-        self.nombre = nombre
-        self.ubicacion = ubicacion
+import anymap_ts as anymap
 
-    def mostrar_info(self):
-        print(f"Parque {self.nombre} ubicado en {self.ubicacion}")
+# Mapa del Parque Norte usando AnyMap TS
+m = anymap.Map(
+    center=[-3.6867, 40.4740],
+    zoom=16
+)
 
-parque = ParqueNorte("Parque Norte", "Madrid")
-parque.mostrar_info()
+# Añadir punto de interés
+m.add_geojson({
+    "type": "Feature",
+    "properties": {"name": "Punto Central"},
+    "geometry": {"type": "Point", "coordinates": [-3.6867, 40.4740]}
+})
+
+print("Mapa AnyMap TS del Parque Norte generado.")

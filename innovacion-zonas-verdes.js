@@ -1,1 +1,0 @@
-// Aquí irá el código JavaScript
