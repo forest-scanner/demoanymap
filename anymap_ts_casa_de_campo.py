@@ -10,7 +10,7 @@ class AnyMap(anywidget.AnyWidget):
     value = traitlets.Dict({}).tag(sync=True)
 
 # Función para crear el mapa
-def crear_mapa_alcazaba(geojson_path, center_coordinates, zoom_level):
+def crear_mapa_casa_de_campo(geojson_path, center_coordinates, zoom_level):
     # Carga el GeoJSON
     with open(geojson_path, 'r') as f:
         geojson_data = json.load(f)
@@ -26,10 +26,9 @@ def crear_mapa_alcazaba(geojson_path, center_coordinates, zoom_level):
     return mapa
 
 if __name__ == '__main__':
-    # Coordenadas de ejemplo (REEMPLAZA ESTAS COORDENADAS CON LAS CORRECTAS)
-    # Estas coordenadas son APROXIMADAS.  Debes reemplazarlas.
-    centro = [ -3.7038, 40.4168 ] # Ejemplo: Madrid
-    zoom = 16 # Ajusta el zoom
+    # Coordenadas de la Casa de Campo en Madrid
+    centro = [40.413669, -3.731778]
+    zoom = 16
 
     # Crea un archivo GeoJSON de prueba (reemplaza esto con el GeoJSON real)
     geojson_prueba = {
@@ -41,7 +40,7 @@ if __name__ == '__main__':
                 'geometry': {
                     'type': 'Polygon',
                     'coordinates': [
-                        [[-3.705, 40.415], [-3.700, 40.415], [-3.700, 40.420], [-3.705, 40.420], [-3.705, 40.415]]
+                        [[-3.735, 40.410], [-3.730, 40.410], [-3.730, 40.415], [-3.735, 40.415], [-3.735, 40.410]]
                     ]
                 }
             }
@@ -49,13 +48,13 @@ if __name__ == '__main__':
     }
 
     # Guarda el GeoJSON de prueba en un archivo
-    geojson_path = 'data/parque_alcazaba.geojson'
+    geojson_path = 'data/casa_de_campo.geojson'
     Path('data').mkdir(exist_ok=True)
     with open(geojson_path, 'w') as f:
         json.dump(geojson_prueba, f)
 
     # Crea el mapa
-    mapa = crear_mapa_alcazaba(geojson_path, centro, zoom)
+    mapa = crear_mapa_casa_de_campo(geojson_path, centro, zoom)
 
     # Muestra el mapa (esto se mostrará en un entorno Jupyter o similar)
     print(mapa)
